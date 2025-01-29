@@ -46,6 +46,7 @@ router.post('/signup', async(req, res, next) => {
     }
   
     const salt = bcrypt.genSaltSync(saltRounds);
+    console.log("Salt: ", salt);
     const hashedPassword = bcrypt.hashSync(password, salt);
 
     const verificationToken = jwt.sign({ email }, process.env.TOKEN_SECRET, {
@@ -54,7 +55,7 @@ router.post('/signup', async(req, res, next) => {
 
     const createdUser = await User.create({ email, password: hashedPassword, name, verificationToken });
 
-    // Nodemailer implementation
+    // ### Nodemailer implementation
     // password from the email server
     // const EMAIL_PASSWORD = process.env.EMAIL_SECRET;
 
@@ -80,7 +81,7 @@ router.post('/signup', async(req, res, next) => {
     // const { email: createdEmail, name: createdName, _id: createdId } = createdUser;
     // const user = { email: createdEmail, name: createdName, _id: createdId,  };
   
-    res.status(201).json({ user });
+    res.status(201).json({ createdUser });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal Server Error" });
@@ -89,7 +90,7 @@ router.post('/signup', async(req, res, next) => {
 
 
 // POST  /auth/login - Verifies email and password and returns a JWT
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   const { email, password } = req.body;
 
   // Check if email or password are provided as empty string 
@@ -97,45 +98,40 @@ router.post('/login', (req, res, next) => {
     res.status(400).json({ message: "Provide email and password." });
     return;
   }
-
-  console.log('Test: ', email, password)
-
-  // Check the users collection if a user with the same email exists
-  User.findOne({ email })
-    .then((foundUser) => {
-    
-      if (!foundUser) {
-        // If the user is not found, send an error response
+    try{
+      const foundUser = await User.findOne({ email })
+      if(!foundUser){
         res.status(401).json({ message: "User not found." })
-        return;
+        return;  
       }
-
-      // Compare the provided password with the one saved in the database
+      // passwort check
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
-
-      if (passwordCorrect) {
-        // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundUser;
+      if(passwordCorrect){
+         // Deconstruct the user object to omit the password
+         const { _id, email, name } = foundUser;
         
-        // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
-
-        // Create and sign the token
-        const authToken = jwt.sign( 
-          payload,
-          process.env.TOKEN_SECRET,
-          { algorithm: 'HS256', expiresIn: "6h" }
-        );
-
-        // Send the token as the response
-        res.status(200).json({ authToken: authToken });
+         // Create an object that will be set as the token payload
+         const payload = { _id, email, name };
+ 
+         // Create and sign the token
+         const authToken = jwt.sign( 
+           payload,
+           process.env.TOKEN_SECRET,
+           { algorithm: 'HS256', expiresIn: "6h" }
+         );
+ 
+         // Send the token as the response
+         res.status(200).json({ authToken: authToken });
+         return
       }
       else {
         res.status(401).json({ message: "Unable to authenticate the user" });
-      }
-
-    })
-    .catch(err => res.status(500).json({ message: "Internal Server Error" }));
+        return
+      }      
+    }catch(err){
+      res.status(500).json({message: "Internal Server Error"})
+      return
+    }
 });
 
 
