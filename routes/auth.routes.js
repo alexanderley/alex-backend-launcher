@@ -52,32 +52,6 @@ router.post('/signup', async(req, res, next) => {
     });
 
     const createdUser = await User.create({ email, password: hashedPassword, name, verificationToken });
-
-    // ### Nodemailer implementation
-    // password from the email server
-    // const EMAIL_PASSWORD = process.env.EMAIL_SECRET;
-
-    // const transporter = nodemailer.createTransport({
-    //   service: "Gmail",
-    //   auth: {
-    //     user: "alexander.ley.inbox@gmail.com",
-    //     pass: EMAIL_PASSWORD,
-    //   },
-    // });
-
-    // // url that is goin to be send to the user in order to verify their email
-    // const verificationLink = `${frontend_URL}/verify/?token=${verificationToken}`;
-    // const msg = {
-    //   from: '"The Express app 👻" <foo@example.com>',
-    //   to: `${email}`,
-    //   subject: "Account Verification",
-    //   text: `Click the following link to verify your account: ${verificationLink}`,
-    // };
-
-    // await transporter.sendMail(msg);
-  
-    // const { email: createdEmail, name: createdName, _id: createdId } = createdUser;
-    // const user = { email: createdEmail, name: createdName, _id: createdId,  };
   
     res.status(201).json({ createdUser });
   } catch (err) {
