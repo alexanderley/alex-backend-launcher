@@ -1,6 +1,23 @@
 ### API Documentation
+This is a good starter project if you want to build your own REST API. You can create users, generate session tokens, and validate routes. It also works seamlessly with the frontend launcher I’ve built in my other repositories.
 
-We will start our project by first documenting all of the routes and data models for our API. Following best practices we will use _verbs_ to specify the type of operation being done and _nouns_ when naming endpoints.
+If you’re using a SQL database, you’ll also find an alternative version available in the repos.
+
+Have fun building!
+
+### Tech Stack
+- Node.js + express.js
+- MongoDB for database
+- .env for enviourmental variables
+- bycrypt for password encryption
+- jwt token for validation
+
+### How to start?
+- clone repo
+- npm install
+- npm run dev
+- create a .env file
+- server should run on http://localhost:5005/
 
 #### Routes
 
